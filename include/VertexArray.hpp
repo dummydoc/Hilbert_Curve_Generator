@@ -1,0 +1,14 @@
+//
+// Created by rowan on 05/10/17.
+//
+
+#ifndef CPSC_453_ASSIGNMENT_1_VERTEXARRAY_HPP
+#define CPSC_453_ASSIGNMENT_1_VERTEXARRAY_HPP
+
+
+class VertexArray {
+
+};
+
+
+#endif //CPSC_453_ASSIGNMENT_1_VERTEXARRAY_HPP
