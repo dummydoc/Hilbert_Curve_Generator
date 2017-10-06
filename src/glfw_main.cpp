@@ -1,18 +1,20 @@
 //
 // Created by rowan on 05/10/17 with some code from the TA's boilerplate code.
 //
+
 #include <iostream>
+#include <vector>
 
-#define GLFW_INCLUDE_GLCOREARB
-#define GL_GLEXT_PROTOTYPES
-#include <GLFW/glfw3.h>
-
+#include "glfw.hpp"
 #include "ShaderProgram.hpp"
 #include "VertexArray.hpp"
 #include "VertexBuffer.hpp"
+#include "shaders.hpp"
 
 using std::cout;
 using std::endl;
+
+void render(GLuint numVerticies);
 
 
 int main(int argc, char *argv[]) {
@@ -44,11 +46,23 @@ int main(int argc, char *argv[]) {
 
 
     // Init stuff here
+    auto shaderProgram = new ShaderProgram(vertex_shader, fragment_shader);
+    shaderProgram->use();
+
+    auto vertexArray = new VertexArray();
+    vertexArray->bind();
+
+    auto vertexBuffer = new VertexBuffer(std::vector<float> {-0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5});
+    vertexBuffer->bind();
+    vertexBuffer->setVertexAttribute(shaderProgram->getId(), "position", 2);
+    vertexBuffer->enableVertexAttribute("position");
 
 
     while (!glfwWindowShouldClose(window)) {
         // Render loop goes here
+        render(6);
 
+        glfwSwapInterval(1);
         glfwSwapBuffers(window);
 
         glfwPollEvents();
@@ -59,4 +73,13 @@ int main(int argc, char *argv[]) {
 
     cout << "The End" << endl;
     return 0;
+}
+
+
+void render(GLuint numVerticies) {
+    // clear screen to a dark grey colour
+    glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glDrawArrays(GL_LINES, 0, numVerticies);
 }

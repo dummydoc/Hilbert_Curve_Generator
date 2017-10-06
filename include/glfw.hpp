@@ -1,0 +1,13 @@
+//
+// Created by rowan on 06/10/17.
+//
+
+#ifndef CPSC_453_ASSIGNMENT_1_GLFW_HPP
+#define CPSC_453_ASSIGNMENT_1_GLFW_HPP
+
+#define GLFW_INCLUDE_GLCOREARB
+#define GL_GLEXT_PROTOTYPES
+
+#include <GLFW/glfw3.h>
+
+#endif //CPSC_453_ASSIGNMENT_1_GLFW_HPP
