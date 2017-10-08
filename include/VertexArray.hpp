@@ -6,7 +6,6 @@
 #define CPSC_453_ASSIGNMENT_1_VERTEXARRAY_HPP
 
 #include "glfw.hpp"
-#include "VertexBuffer.hpp"
 
 
 class VertexArray {

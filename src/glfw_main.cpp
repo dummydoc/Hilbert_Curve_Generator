@@ -52,15 +52,20 @@ int main(int argc, char *argv[]) {
     auto vertexArray = new VertexArray();
     vertexArray->bind();
 
-    auto vertexBuffer = new VertexBuffer(std::vector<float> {-0.5, -0.5, -0.5, 0.5, -0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, -0.5});
+    auto vertexBuffer = new VertexBuffer(std::vector<float> {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5});
     vertexBuffer->bind();
     vertexBuffer->setVertexAttribute(shaderProgram->getId(), "position", 2);
     vertexBuffer->enableVertexAttribute("position");
 
+    auto colourBuffer = new VertexBuffer(std::vector<float> {0, 0.333, 0.666, 1});
+    colourBuffer->bind();
+    colourBuffer->setVertexAttribute(shaderProgram->getId(), "hue", 1);
+    colourBuffer->enableVertexAttribute("hue");
+
 
     while (!glfwWindowShouldClose(window)) {
         // Render loop goes here
-        render(6);
+        render(4);
 
         glfwSwapInterval(1);
         glfwSwapBuffers(window);
@@ -81,5 +86,5 @@ void render(GLuint numVerticies) {
     glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glDrawArrays(GL_LINES, 0, numVerticies);
+    glDrawArrays(GL_LINE_STRIP, 0, numVerticies);
 }
