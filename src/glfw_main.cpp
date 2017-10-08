@@ -15,6 +15,7 @@ using std::cout;
 using std::endl;
 
 void render(GLuint numVerticies);
+void hilbert(std::vector<float>& curve, int n, float x, float y, float xi, float xj, float yi, float yj);
 
 
 int main(int argc, char *argv[]) {
@@ -44,6 +45,10 @@ int main(int argc, char *argv[]) {
 
     glfwMakeContextCurrent(window); // this function makes the openGL context that we just created with our window "current" on this thread. That means that we can use it to draw to.
 
+    glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height){
+        glViewport(0,0, width, height);
+    });
+
 
     // Init stuff here
     auto shaderProgram = new ShaderProgram(vertex_shader, fragment_shader);
@@ -52,12 +57,20 @@ int main(int argc, char *argv[]) {
     auto vertexArray = new VertexArray();
     vertexArray->bind();
 
-    auto vertexBuffer = new VertexBuffer(std::vector<float> {-0.5, -0.5, -0.5, 0.5, 0.5, 0.5, 0.5, -0.5});
+    auto curve = new std::vector<float>();
+    hilbert(*curve, 6, -1, -1, 0, 2, 2, 0);
+
+    auto vertexBuffer = new VertexBuffer(*curve);
     vertexBuffer->bind();
     vertexBuffer->setVertexAttribute(shaderProgram->getId(), "position", 2);
     vertexBuffer->enableVertexAttribute("position");
 
-    auto colourBuffer = new VertexBuffer(std::vector<float> {0, 0.333, 0.666, 1});
+    auto colours = new std::vector<float>();
+    for (int i = 1; i <= (curve->size()/2); i++) {
+        colours->push_back(i * (0.9/(curve->size()/2)));
+    }
+
+    auto colourBuffer = new VertexBuffer(*colours);
     colourBuffer->bind();
     colourBuffer->setVertexAttribute(shaderProgram->getId(), "hue", 1);
     colourBuffer->enableVertexAttribute("hue");
@@ -65,7 +78,7 @@ int main(int argc, char *argv[]) {
 
     while (!glfwWindowShouldClose(window)) {
         // Render loop goes here
-        render(4);
+        render(curve->size()/2);
 
         glfwSwapInterval(1);
         glfwSwapBuffers(window);
@@ -87,4 +100,16 @@ void render(GLuint numVerticies) {
     glClear(GL_COLOR_BUFFER_BIT);
 
     glDrawArrays(GL_LINE_STRIP, 0, numVerticies);
+}
+
+void hilbert(std::vector<float>& curve, int n, float x, float y, float xi, float xj, float yi, float yj) {
+    if (n <= 0) {
+        curve.push_back(x + (xi + yi)/2);
+        curve.push_back(y + (xj + yj)/2);
+    } else {
+        hilbert(curve, n-1, x,           y,           yi/2, yj/2,  xi/2,  xj/2);
+        hilbert(curve, n-1, x+xi/2,      y+xj/2 ,     xi/2, xj/2,  yi/2,  yj/2);
+        hilbert(curve, n-1, x+xi/2+yi/2, y+xj/2+yj/2, xi/2, xj/2,  yi/2,  yj/2);
+        hilbert(curve, n-1, x+xi/2+yi,   y+xj/2+yj,  -yi/2,-yj/2, -xi/2, -xj/2);
+    }
 }
