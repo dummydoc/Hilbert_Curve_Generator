@@ -15,7 +15,15 @@ using std::cout;
 using std::endl;
 
 void render(GLuint numVerticies);
-void hilbert(std::vector<float>& curve, int n, float x, float y, float xi, float xj, float yi, float yj);
+void hilbert(std::vector<float>& curve, int n, float x = -1, float y = -1, float xi = 0, float xj = 2, float yi = 2, float yj = 0);
+void colourGen(std::vector<float>& colours, int numColours);
+
+
+// This is nasty, but I was nearly out of time, and I needed to make it work with the glfwKeyCallback...
+int n = 1;
+auto curve = new std::vector<float>();
+auto colours = new std::vector<float>();
+VertexBuffer *vertexBuffer, *colourBuffer;
 
 
 int main(int argc, char *argv[]) {
@@ -36,7 +44,7 @@ int main(int argc, char *argv[]) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // Instruct GLFW to remove all APIs that were deprecated in the indicated version (4.1 here) as they will not be available in subsequent versions
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE); // Use the OpenGL Core profile, instead of some other one. Core is the main profile.
-    window = glfwCreateWindow(512, 512, "CPSC 453 Assignment 1", 0, 0); // The first three arguments should be pretty obvious. The first is Width, followed by Height, and then window title. The last two are "monitor" and "share". Monitor refers to the display monitor to use if the window is going to be in full-screen mode. Share refers to another window that this window should share resources with.
+    window = glfwCreateWindow(1024, 1024, "CPSC 453 Assignment 1", 0, 0); // The first three arguments should be pretty obvious. The first is Width, followed by Height, and then window title. The last two are "monitor" and "share". Monitor refers to the display monitor to use if the window is going to be in full-screen mode. Share refers to another window that this window should share resources with.
     if (!window) {
         cout << "Program failed to create GLFW window, TERMINATING" << endl;
         glfwTerminate(); // See below
@@ -49,32 +57,50 @@ int main(int argc, char *argv[]) {
         glViewport(0,0, width, height);
     });
 
-
-    // Init stuff here
+            // Init stuff here
     auto shaderProgram = new ShaderProgram(vertex_shader, fragment_shader);
     shaderProgram->use();
 
     auto vertexArray = new VertexArray();
     vertexArray->bind();
 
-    auto curve = new std::vector<float>();
-    hilbert(*curve, 6, -1, -1, 0, 2, 2, 0);
 
-    auto vertexBuffer = new VertexBuffer(*curve);
+    hilbert(*curve, n);
+
+    vertexBuffer = new VertexBuffer(*curve);
     vertexBuffer->bind();
     vertexBuffer->setVertexAttribute(shaderProgram->getId(), "position", 2);
     vertexBuffer->enableVertexAttribute("position");
 
-    auto colours = new std::vector<float>();
-    for (int i = 1; i <= (curve->size()/2); i++) {
-        colours->push_back(i * (0.9/(curve->size()/2)));
-    }
+    colourGen(*colours, curve->size()/2);
 
-    auto colourBuffer = new VertexBuffer(*colours);
+    colourBuffer = new VertexBuffer(*colours);
     colourBuffer->bind();
     colourBuffer->setVertexAttribute(shaderProgram->getId(), "hue", 1);
     colourBuffer->enableVertexAttribute("hue");
 
+    glfwSetKeyCallback(window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+        if (key == GLFW_KEY_UP && action == GLFW_RELEASE && n < 10) {
+            curve->clear();
+            colours->clear();
+            hilbert(*curve, ++n);
+            colourGen(*colours, curve->size()/2);
+            vertexBuffer->bind();
+            vertexBuffer->setBufferData(*curve);
+            colourBuffer->bind();
+            colourBuffer->setBufferData(*colours);
+        } else if (key == GLFW_KEY_DOWN && action == GLFW_RELEASE && n > 1) {
+            curve->clear();
+            colours->clear();
+            hilbert(*curve, --n);
+            colourGen(*colours, curve->size()/2);
+            vertexBuffer->bind();
+            vertexBuffer->setBufferData(*curve);
+            colourBuffer->bind();
+            colourBuffer->setBufferData(*colours);
+
+        }
+    });
 
     while (!glfwWindowShouldClose(window)) {
         // Render loop goes here
@@ -111,5 +137,12 @@ void hilbert(std::vector<float>& curve, int n, float x, float y, float xi, float
         hilbert(curve, n-1, x+xi/2,      y+xj/2 ,     xi/2, xj/2,  yi/2,  yj/2);
         hilbert(curve, n-1, x+xi/2+yi/2, y+xj/2+yj/2, xi/2, xj/2,  yi/2,  yj/2);
         hilbert(curve, n-1, x+xi/2+yi,   y+xj/2+yj,  -yi/2,-yj/2, -xi/2, -xj/2);
+    }
+}
+
+void colourGen(std::vector<float>& colours, int numColours) {
+    colours.clear();
+    for (int i = 1; i <= numColours; i++) {
+        colours.push_back(i * (0.9/numColours));
     }
 }
