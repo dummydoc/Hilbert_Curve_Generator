@@ -8,15 +8,12 @@
 
 ShaderProgram::ShaderProgram() {
     id = glCreateProgram();
-    vertex_shader = 0;
-    geometry_shader = 0;
-    fragment_shader = 0;
 }
 
 ShaderProgram::ShaderProgram(std::string vertexShaderString, std::string fragmentShaderString) {
     id = glCreateProgram();
     addShader(vertexShaderString, GL_VERTEX_SHADER);
-    addShader(vertexShaderString, GL_FRAGMENT_SHADER);
+    addShader(fragmentShaderString, GL_FRAGMENT_SHADER);
 
 }
 
@@ -24,7 +21,7 @@ ShaderProgram::ShaderProgram(std::string vertexShaderString, std::string geometr
     id = glCreateProgram();
     addShader(vertexShaderString, GL_VERTEX_SHADER);
     addShader(geometryShaderString, GL_GEOMETRY_SHADER);
-    addShader(vertexShaderString, GL_FRAGMENT_SHADER);
+    addShader(fragmentShaderString, GL_FRAGMENT_SHADER);
 }
 
 void ShaderProgram::addShader(std::string shaderString, GLuint type) {
@@ -53,6 +50,7 @@ void ShaderProgram::addShader(std::string shaderString, GLuint type) {
             }
             updateShader(fragment_shader, shaderString);
     }
+
     glLinkProgram(id);
 }
 
