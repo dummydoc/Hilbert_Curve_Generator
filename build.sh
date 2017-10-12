@@ -4,4 +4,4 @@ mkdir build
 cd build
 cmake ..
 cmake --build .
-./CPSC_453_Assignment_1
+./Hilbert_Curve_Generator
